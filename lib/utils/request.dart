@@ -8,9 +8,9 @@ import '../models/raw/utility.dart';
 import 'dart:core';
 import 'dart:developer';
 
-Future<List<models.Pokemon?>?> getPokemons(int pag, int qtd_items) async{
+Future<List<models.Pokemon?>?> getPokemons(int qtsLoaded, int qtdItems) async{
   http.Response response = await http
-      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?offset=${(pag - 1) * qtd_items}&limit=${qtd_items}'));
+      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?offset=${qtsLoaded}&limit=${qtdItems}'));
   Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
   List<dynamic>? resultsList = jsonResponse["results"];
