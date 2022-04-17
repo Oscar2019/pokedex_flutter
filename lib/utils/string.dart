@@ -1,10 +1,10 @@
 extension StringExtension on String {
   String capitalize() {
-    if(this.length == 1){
-      return "${this.toUpperCase()}";
-    } else if(this.length > 1){
-      return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+    if(length == 1){
+      return toUpperCase();
+    } else if(length > 1){
+      return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
     }
-    return "${this}";
+    return this;
   }
 }

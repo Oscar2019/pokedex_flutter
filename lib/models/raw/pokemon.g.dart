@@ -6,47 +6,84 @@ part of 'pokemon.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+Ability _$AbilityFromJson(Map<String, dynamic> json) => Ability(
+      effectEntries: (json['effect_entries'] as List<dynamic>?)
+          ?.map((e) => e == null
+              ? null
+              : VerboseEffect.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      id: json['id'] as int?,
+      name: json['name'] as String?,
+    );
+
+Map<String, dynamic> _$AbilityToJson(Ability instance) => <String, dynamic>{
+      'effect_entries': instance.effectEntries,
+      'id': instance.id,
+      'name': instance.name,
+    };
+
+AbilityEffectChange _$AbilityEffectChangeFromJson(Map<String, dynamic> json) =>
+    AbilityEffectChange(
+      effectEntries: (json['effect_entries'] as List<dynamic>?)
+          ?.map((e) => AbilityEffectChange.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      versionGroup: json['version_group'] == null
+          ? null
+          : NamedAPIResource.fromJson(
+              json['version_group'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$AbilityEffectChangeToJson(
+        AbilityEffectChange instance) =>
+    <String, dynamic>{
+      'effect_entries': instance.effectEntries,
+      'version_group': instance.versionGroup,
+    };
+
+AbilityFlavorText _$AbilityFlavorTextFromJson(Map<String, dynamic> json) =>
+    AbilityFlavorText(
+      flavorText: json['flavor_text'] as String?,
+      language: json['language'] == null
+          ? null
+          : NamedAPIResource.fromJson(json['language'] as Map<String, dynamic>),
+      versionGroup: json['version_group'] == null
+          ? null
+          : NamedAPIResource.fromJson(
+              json['version_group'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$AbilityFlavorTextToJson(AbilityFlavorText instance) =>
+    <String, dynamic>{
+      'flavor_text': instance.flavorText,
+      'language': instance.language,
+      'version_group': instance.versionGroup,
+    };
+
+AbilityPokemon _$AbilityPokemonFromJson(Map<String, dynamic> json) =>
+    AbilityPokemon(
+      isHidden: json['is_hidden'] as bool?,
+      slot: json['slot'] as int?,
+      pokemon: json['pokemon'] == null
+          ? null
+          : NamedAPIResource.fromJson(json['pokemon'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$AbilityPokemonToJson(AbilityPokemon instance) =>
+    <String, dynamic>{
+      'is_hidden': instance.isHidden,
+      'slot': instance.slot,
+      'pokemon': instance.pokemon,
+    };
+
 Pokemon _$PokemonFromJson(Map<String, dynamic> json) => Pokemon(
       abilities: (json['abilities'] as List<dynamic>?)
           ?.map((e) => e == null
               ? null
               : PokemonAbility.fromJson(e as Map<String, dynamic>))
           .toList(),
-      baseExperience: json['base_experience'] as int?,
-      forms: (json['forms'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : NamedAPIResource.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      gameIndices: (json['game_indices'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : VersionGameIndex.fromJson(e as Map<String, dynamic>))
-          .toList(),
       height: json['height'] as int?,
-      heldItems: (json['held_items'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : PokemonHeldItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
       id: json['id'] as int?,
-      isDefault: json['is_default'] as bool?,
-      locationAreaEncounters: json['location_area_encounters'] as String?,
-      moves: (json['moves'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : PokemonMove.fromJson(e as Map<String, dynamic>))
-          .toList(),
       name: json['name'] as String?,
-      order: json['order'] as int?,
-      pastTypes: (json['past_types'] as List<dynamic>?)
-          ?.map((e) => e == null
-              ? null
-              : PokemonTypePast.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      species: json['species'] == null
-          ? null
-          : NamedAPIResource.fromJson(json['species'] as Map<String, dynamic>),
       sprites: json['sprites'] == null
           ? null
           : PokemonSprites.fromJson(json['sprites'] as Map<String, dynamic>),
@@ -65,19 +102,9 @@ Pokemon _$PokemonFromJson(Map<String, dynamic> json) => Pokemon(
 
 Map<String, dynamic> _$PokemonToJson(Pokemon instance) => <String, dynamic>{
       'abilities': instance.abilities,
-      'base_experience': instance.baseExperience,
-      'forms': instance.forms,
-      'game_indices': instance.gameIndices,
       'height': instance.height,
-      'held_items': instance.heldItems,
       'id': instance.id,
-      'is_default': instance.isDefault,
-      'location_area_encounters': instance.locationAreaEncounters,
-      'moves': instance.moves,
       'name': instance.name,
-      'order': instance.order,
-      'past_types': instance.pastTypes,
-      'species': instance.species,
       'sprites': instance.sprites,
       'stats': instance.stats,
       'types': instance.types,
@@ -232,26 +259,71 @@ Map<String, dynamic> _$PokemonStatToJson(PokemonStat instance) =>
       'base_stat': instance.baseStat,
     };
 
+_PokemonSpritesOtherDreamWorld _$PokemonSpritesOtherDreamWorldFromJson(
+        Map<String, dynamic> json) =>
+    _PokemonSpritesOtherDreamWorld(
+      frontDefault: json['front_default'] as String?,
+      frontFemale: json['front_female'] as String?,
+    );
+
+Map<String, dynamic> _$PokemonSpritesOtherDreamWorldToJson(
+        _PokemonSpritesOtherDreamWorld instance) =>
+    <String, dynamic>{
+      'front_default': instance.frontDefault,
+      'front_female': instance.frontFemale,
+    };
+
+_PokemonSpritesOtherHome _$PokemonSpritesOtherHomeFromJson(
+        Map<String, dynamic> json) =>
+    _PokemonSpritesOtherHome(
+      frontDefault: json['front_default'] as String?,
+      frontFemale: json['front_female'] as String?,
+    );
+
+Map<String, dynamic> _$PokemonSpritesOtherHomeToJson(
+        _PokemonSpritesOtherHome instance) =>
+    <String, dynamic>{
+      'front_default': instance.frontDefault,
+      'front_female': instance.frontFemale,
+    };
+
+_PokemonSpritesOtherOfficialArtwork
+    _$PokemonSpritesOtherOfficialArtworkFromJson(Map<String, dynamic> json) =>
+        _PokemonSpritesOtherOfficialArtwork(
+          frontDefault: json['front_default'] as String?,
+        );
+
+Map<String, dynamic> _$PokemonSpritesOtherOfficialArtworkToJson(
+        _PokemonSpritesOtherOfficialArtwork instance) =>
+    <String, dynamic>{
+      'front_default': instance.frontDefault,
+    };
+
+_PokemonSpritesOther _$PokemonSpritesOtherFromJson(Map<String, dynamic> json) =>
+    _PokemonSpritesOther(
+      officialArtwork: json['official-artwork'] == null
+          ? null
+          : _PokemonSpritesOtherOfficialArtwork.fromJson(
+              json['official-artwork'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$PokemonSpritesOtherToJson(
+        _PokemonSpritesOther instance) =>
+    <String, dynamic>{
+      'official-artwork': instance.officialArtwork,
+    };
+
 PokemonSprites _$PokemonSpritesFromJson(Map<String, dynamic> json) =>
     PokemonSprites(
       frontDefault: json['front_default'] as String?,
-      frontShiny: json['front_shiny'] as String?,
-      frontFemale: json['front_female'] as String?,
-      frontShinyFemale: json['front_shiny_female'] as String?,
-      backDefault: json['back_default'] as String?,
-      backShiny: json['back_shiny'] as String?,
-      backFemale: json['back_female'] as String?,
-      backShinyFemale: json['back_shiny_female'] as String?,
+      other: json['other'] == null
+          ? null
+          : _PokemonSpritesOther.fromJson(
+              json['other'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$PokemonSpritesToJson(PokemonSprites instance) =>
     <String, dynamic>{
       'front_default': instance.frontDefault,
-      'front_shiny': instance.frontShiny,
-      'front_female': instance.frontFemale,
-      'front_shiny_female': instance.frontShinyFemale,
-      'back_default': instance.backDefault,
-      'back_shiny': instance.backShiny,
-      'back_female': instance.backFemale,
-      'back_shiny_female': instance.backShinyFemale,
+      'other': instance.other,
     };

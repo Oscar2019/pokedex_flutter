@@ -237,3 +237,23 @@ class VersionGroupFlavorText{
 
   Map<String, dynamic> toJson() => _$VersionGroupFlavorTextToJson(this);
 }
+
+@JsonSerializable()
+class NamedAPIResourceList{
+  NamedAPIResourceList({
+    this.count,
+    this.next,
+    this.previous,
+    this.result,
+  });
+
+  final int? count;
+  final String? next;
+  final String? previous;
+  final NamedAPIResource? result;
+
+  factory NamedAPIResourceList.fromJson(Map<String, dynamic> json) => _$NamedAPIResourceListFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NamedAPIResourceListToJson(this);
+}
+

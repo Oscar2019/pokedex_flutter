@@ -1,80 +1,120 @@
-import 'package:http/http.dart' as http;
-import 'package:json_annotation/json_annotation.dart';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/raw.dart' as raw;
-import '../models/models.dart' as models;
-import '../models/raw/utility.dart';
 import 'dart:core';
-import 'dart:developer';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Future<List<models.Pokemon?>?> getPokemons(int qtsLoaded, int qtdItems) async{
+Future<List<raw.NamedAPIResource?>?> getPokemons(int qtsLoaded, int qtdItems) async{
+  if(qtsLoaded + qtdItems >= 898){
+    qtdItems = 898 - qtsLoaded;
+  }
+  final SharedPreferences prefs = await  SharedPreferences.getInstance();
+  List<raw.NamedAPIResource?> res = <raw.NamedAPIResource?>[];
+  int ini = qtsLoaded+1, fim = qtsLoaded + qtdItems;
+  fim = min(fim, 898);
+  for(ini; ini <= fim; ini++){
+    String? message = prefs.getString("NamedAPIResource:Pokemon:$ini");
+    if(message != null){
+      res.add(raw.NamedAPIResource.fromJson(jsonDecode(message)));
+      qtdItems--;
+      qtsLoaded++;
+    } else{
+      break;
+    }
+  }
+  if(qtdItems == 0){
+    return res;
+  }
+
   http.Response response = await http
-      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?offset=${qtsLoaded}&limit=${qtdItems}'));
+      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?offset=$qtsLoaded&limit=$qtdItems'));
   Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
   List<dynamic>? resultsList = jsonResponse["results"];
   if(resultsList == null){
     return null;
   }
-  List<models.Pokemon?>? resultsList2 = await Future.wait<models.Pokemon?>(resultsList.map(
-    (element) async {
-      raw.NamedAPIResource nar = raw.NamedAPIResource.fromJson(element);
-      String? idName = nar.id;
-      if (idName == null) {
-        return null;
-      }
-      models.Pokemon? myPokemon = await getPokemon(idName);
-      if(myPokemon == null){
-        return null;
-      }
-      myPokemon.abilities = myPokemon.myRaw.abilities?.map(
-              (ability) => models.PokemonAbility(
-              isHidden: ability?.isHidden,
-              slot: ability?.slot
-          )
-      ).toList();
-      myPokemon.id = myPokemon.myRaw.id;
-      myPokemon.name = myPokemon.myRaw.name;
-      myPokemon.sprites = models.PokemonSprites.fromRaw(myPokemon.myRaw.sprites);
-      return myPokemon;
+  RegExp regExp = RegExp(r"^\d*$");
+  for (var shortPokemon in resultsList) {
+    var named = raw.NamedAPIResource.fromJson(shortPokemon);
+    if(regExp.hasMatch(named.id!) && int.parse(named.id!) <= 898){
+      res.add(named);
     }
-  ));
-  return resultsList2;
-}
 
-Future<models.Pokemon?> getPokemon(String idName) async{
-  int? id = int.tryParse(idName);
-
-  if (id == null) {
-    raw.Pokemon? myPokemon = await getRawPokemon(idName);
-    if(myPokemon == null){
-      return null;
-    }
-    id = myPokemon.id;
-    if(id == null){
-      return null;
-    }
-    if(!models.Pokemon.hasInstance(id)){
-      models.Pokemon.setInstance(id, models.Pokemon(myPokemon));
-    }
-  } else{
-    if(!models.Pokemon.hasInstance(id)){
-      raw.Pokemon? myPokemon = await getRawPokemon(idName);
-      if(myPokemon == null){
-        return null;
+  }
+  for (var shortPokemon in resultsList){
+    var named = raw.NamedAPIResource.fromJson(shortPokemon);
+    if(regExp.hasMatch(named.id!) && int.parse(named.id!) <= 898){
+      if(!prefs.containsKey("NamedAPIResource:Pokemon:${named.id}")){
+        await prefs.setString("NamedAPIResource:Pokemon:${named.id}", jsonEncode(shortPokemon));
       }
-      models.Pokemon.setInstance(id, models.Pokemon(myPokemon));
     }
   }
-  return models.Pokemon.getInstance(id);
+
+  return res;
 }
 
-Future<raw.Pokemon?> getRawPokemon(String idName) async{
-  http.Response response = await http
-      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/${idName}/'));
-  Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-  raw.Pokemon pokemon = raw.Pokemon.fromJson(jsonResponse);
+Map<String, raw.Pokemon?> _pokemonMap = <String, raw.Pokemon?>{};
+
+Future<raw.Pokemon?> getPokemon(String? idName) async{
+  if(idName == null){
+    return null;
+  }
+  if(_pokemonMap.containsKey(idName)){
+    return _pokemonMap[idName];
+  }
+  final SharedPreferences prefs = await  SharedPreferences.getInstance();
+  String? message = prefs.getString("Pokemon:$idName");
+
+  Map<String, dynamic>? jsonResponse;
+  raw.Pokemon? pokemon;
+  if(message == null){
+    http.Response response = await http
+        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/$idName/'));
+    message = response.body;
+    jsonResponse = jsonDecode(message);
+    pokemon = raw.Pokemon.fromJson(jsonResponse!);
+
+    await prefs.setString("Pokemon:$idName", jsonEncode(pokemon.toJson()));
+  } else{
+    jsonResponse = jsonDecode(message);
+    pokemon = raw.Pokemon.fromJson(jsonResponse!);
+  }
+  _pokemonMap[idName] = pokemon;
 
   return pokemon;
+}
+
+Map<String, raw.Ability?> _abilityMap = <String, raw.Ability?>{};
+
+Future<raw.Ability?> getAbility(String? idName) async{
+  if(idName == null){
+    return null;
+  }
+  if(_abilityMap.containsKey(idName)){
+    return _abilityMap[idName];
+  }
+
+  final SharedPreferences prefs = await  SharedPreferences.getInstance();
+  String? message = prefs.getString("Ability:$idName");
+
+  Map<String, dynamic>? jsonResponse;
+  raw.Ability? ability;
+  if(message == null){
+    http.Response response = await http
+        .get(Uri.parse('https://pokeapi.co/api/v2/ability/$idName/'));
+    message = response.body;
+    jsonResponse = jsonDecode(message);
+    ability = raw.Ability.fromJson(jsonResponse!);
+    await prefs.setString("Ability:$idName", jsonEncode(ability.toJson()));
+  } else{
+    jsonResponse = jsonDecode(message);
+    ability = raw.Ability.fromJson(jsonResponse!);
+  }
+
+  _abilityMap[idName] = ability;
+
+  return ability;
 }
